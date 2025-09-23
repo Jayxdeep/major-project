@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "author": "Jaydeep Mukherjee",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-pi-pico-w", "id": "pico", "top": -3.25, "left": 3.55, "attrs": {} },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht1",
+      "top": -172.5,
+      "left": 90.6,
+      "attrs": { "temperature": "32.4", "humidity": "40.5" }
+    },
+    { "type": "wokwi-relay-module", "id": "relay1", "top": -134.2, "left": 384, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": -116.5, "left": 230.2, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot2", "top": 133.1, "left": 335.8, "attrs": {} },
+    {
+      "type": "board-ssd1306",
+      "id": "oled1",
+      "top": -150.46,
+      "left": -66.97,
+      "attrs": { "i2cAddress": "0x3c" }
+    }
+  ],
+  "connections": [
+    [ "pico:GP0", "$serialMonitor:RX", "", [] ],
+    [ "pico:GP1", "$serialMonitor:TX", "", [] ],
+    [ "pico:3V3", "pot2:VCC", "green", [ "h0" ] ],
+    [ "pico:GND.8", "pot2:GND", "black", [ "h0" ] ],
+    [ "pico:3V3", "pot1:VCC", "green", [ "h61.46", "v227.15", "h76.8" ] ],
+    [ "pico:GND.7", "pot1:GND", "black", [ "h80.66", "v188.75", "h38.4" ] ],
+    [ "pico:3V3", "dht1:VCC", "green", [ "h0" ] ],
+    [ "pico:GP15", "dht1:SDA", "green", [ "h-34.85", "v-233.61", "h144" ] ],
+    [ "pico:GND.6", "dht1:GND", "black", [ "h51.86", "v-166.45", "h9.6" ] ],
+    [ "pico:3V3", "relay1:VCC", "green", [ "h253.46", "v-166.45" ] ],
+    [ "pico:GP16", "relay1:IN", "green", [ "v111.99", "h378.26", "v-345.6", "h-67.2" ] ],
+    [ "pico:GND.5", "relay1:GND", "black", [ "h167.06", "v-70.41", "h115.2", "v-211.2" ] ],
+    [ "pico:GND.4", "oled1:GND", "black", [ "h-303.65", "v-348.81", "h96" ] ],
+    [ "pico:GP4", "oled1:SDA", "green", [ "h-121.25", "v-224.05", "h-48" ] ],
+    [ "pico:GP5", "oled1:SCL", "green", [ "h-92.45", "v-243.25", "h-86.4" ] ],
+    [ "pico:3V3", "oled1:VCC", "green", [ "h13.46", "v-281.65", "h-278.4" ] ],
+    [ "pico:GP26", "pot1:SIG", "green", [ "h42.26", "v140.75", "h220.8" ] ],
+    [ "pico:GP27", "pot2:SIG", "green", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}
