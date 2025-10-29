@@ -1,5 +1,6 @@
 import mqtt from "mqtt";
 import { mqttConfig } from "../config/mqttConfig.js";
+import sensorData from "../models/sensorModel.js"
 console.log("mqtt client file loading")
 const {broker,port,sensortopic,actuatortopic}=mqttConfig;
 console.log(`Connecting to mqtt broker${broker}:${port}`); //here the broker is being connected to mqtt protocol
@@ -18,10 +19,18 @@ client.on("connect",()=>{
         }
     })
 })
-client.on("message",(topic,message)=>{
+client.on("message",async (topic,message)=>{
     //message is being sent to mqtt
     console.log(`message from ${topic}:${message.toString()}`)
-    //later i can add some db    
+    try{
+        const newRead=new sensorData({
+            moisture:message.toString()
+        });
+        await newRead.save();
+        console.log("sensor data saved to DB");
+    }catch(err){
+        console.error("Error occured",err.message);
+    }   
     // client.end();
 })
 export const publishCommand=(cmd)=>{
