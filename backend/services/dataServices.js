@@ -1,2 +1,2 @@
 import SensorData from "../models/sensorModel";
-//testing and reading will do 
+//testing and reading will do ?
