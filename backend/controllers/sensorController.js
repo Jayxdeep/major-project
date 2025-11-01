@@ -1,5 +1,5 @@
-import SensorData from "../models/sensorModel";
-import{getAverageMosit} from "../services/dataServices.js";
+import SensorData from "../models/sensorModel.js";
+import{getavgmoist} from "../services/dataServices.js";
 export const getsensorData=async(_req,res)=>{//sensor readings
     try{
         const data=await SensorData.find().sort({timestamp:-1});
@@ -10,10 +10,11 @@ export const getsensorData=async(_req,res)=>{//sensor readings
 }
 export const latestsensodata=async(_req,res)=>{
         try{
-            const latest=await SensorData.find().sort({timestamp:-1})//ts:records the reading saved in db newest to first
+            const latest=await SensorData.findOne().sort({timestamp:-1})//ts:records the reading saved in db newest to first
             if(!latest){
                 return res.status(404).json({message:"No sensor data is there"})
             }
+            res.status(200).json(latest);
         }catch(err){
             res.status(500).json({error:"error in fetching latest data ",details:err.message});
         }
