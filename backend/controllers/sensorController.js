@@ -1,5 +1,5 @@
 import SensorData from "../models/sensorModel.js";
-import{getavgmoist} from "../services/dataServices.js";
+import{getAvgMosit} from "../services/dataServices.js";
 export const getsensorData=async(_req,res)=>{//sensor readings
     try{
         const data=await SensorData.find().sort({timestamp:-1});
@@ -19,9 +19,9 @@ export const latestsensodata=async(_req,res)=>{
             res.status(500).json({error:"error in fetching latest data ",details:err.message});
         }
     }
-export const getAvgMosit=async(_req,res)=>{
+export const handleAvgMosit=async(_req,res)=>{
     try{
-        const avg=await getAverageMosit();
+        const avg=await getAvgMosit();
         res.status(200).json({avgMosit:avg});
     }catch(err){
         res.status(500).json({error:"failed calc to avg moist",details:err.message})
