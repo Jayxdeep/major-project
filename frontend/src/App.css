@@ -1,94 +1,178 @@
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #f9fff5;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #e8ffe8, #ffffff);
   margin: 0;
   padding: 0;
   color: #333;
 }
-
 .app-container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  min-height: 100vh;
+  padding: 25px 50px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.6s ease-in-out;
   text-align: center;
+  box-sizing: border-box;
+}
+
+
+/* Dark Mode */
+.dark {
+  background: #121212 !important;
+  color: #e0e0e0;
+}
+
+.theme-toggle {
+  float: right;
+  background: #2e7d32;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  transition: 0.3s;
+}
+.theme-toggle:hover {
+  background: #1b5e20;
 }
 
 h1 {
-  color: #2e7d32;
-  font-size: 1.8rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1b5e20;
+  margin-bottom: 5px;
 }
-
 .subtext {
   color: #555;
   font-size: 1rem;
-  margin-bottom: 20px;
-}
-
-.info-card {
-  background: #e8f5e9;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-.valve-status {
-  font-weight: bold;
-  margin-top: 10px;
-  font-size: 1.1rem;
-}
-
-.chart-section {
-  margin-top: 20px;
-  background: #f1f8e9;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 25px;
-}
-
-th, td {
-  border: 1px solid #c8e6c9;
-  padding: 10px;
-  text-align: center;
-}
-
-th {
-  background: #a5d6a7;
-  color: #1b5e20;
-}
-
-td {
-  background: #f9fff9;
-}
-
-tr:hover {
-  background: #f1f8e9;
+  margin-bottom: 30px;
 }
 .cards-container {
   display: flex;
-  justify-content: space-between;
-  gap: 20px;
   flex-wrap: wrap;
+  gap: 20px;
+  width: 100%;
 }
-
-.weather-card {
-  background: #e3f2fd;
-  padding: 15px;
-  border-radius: 10px;
+.info-card, .weather-card, .gauge-card {
   flex: 1;
   min-width: 250px;
-  text-align: center;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  padding: 18px;
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s;
 }
-
+.info-card:hover, .weather-card:hover, .gauge-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+.dark .info-card,
+.dark .weather-card,
+.dark .gauge-card {
+  background: #1e1e1e;
+  box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+}
 .weather-card img {
   width: 60px;
   height: 60px;
+}
+.chart-section {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-top: 22px;
+}
+.dark .chart-section {
+  background: #1e1e1e;
+}
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  margin-top: 30px;
+}
+th {
+  background: #2e7d32;
+  color: white;
+  padding: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+td {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+tr:hover td {
+  background: #e8f5e9;
+}
+.dark tr:hover td {
+  background: rgba(46, 125, 50, 0.4) !important;
+}
+.dark td {
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+.dark th {
+  background: #004d00;
+  color: white;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.dark .gauge-card svg text {
+  fill: #ffffff !important;
+}
+.dark .gauge-card svg .segment-value {
+  fill: #ffffff !important;
+}
+.dark .gauge-card svg tspan {
+  fill: #ffffff !important;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 8px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #2e7d32;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.pagination button:hover {
+  background: #1b5e20;
+}
+
+.pagination button:disabled {
+  background: gray;
+  cursor: not-allowed;
+}
+
+.active-page {
+  background: #1b5e20 !important;
+}
+.dark .pagination button {
+  background: #004d00;
+  color: white;
+}
+
+.dark .pagination button:hover {
+  background: #007500;
+}
+
+.dark .active-page {
+  background: #009900 !important;
 }
