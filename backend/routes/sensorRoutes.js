@@ -8,4 +8,4 @@ const router=express.Router();
 router.get("/",getsensorData);//sensors data fetch
 router.get("/latest",latestsensodata)//some latest readings api
 router.get("/average",handleAvgMosit)//some avg readings api
-export default router;
+export default router; 

@@ -4,7 +4,7 @@ import app from './app.js';
 import connectDB from './config/db.js';
 import "./utils/mqttClient.js"
 import sensorRoutes from "./routes/sensorRoutes.js"
-app.use('/api/sensors',sensorRoutes);
+app.use('/api/sensors',sensorRoutes);//
 const PORT=process.env.PORT ||3000;
 const startserver=async()=>{
     try{

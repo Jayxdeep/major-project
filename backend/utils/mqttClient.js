@@ -7,7 +7,7 @@ console.log(`Connecting to mqtt broker${broker}:${port}`); //here the broker is 
 const client=mqtt.connect({
     host:broker,
     port:parseInt(port,10),
-    protocol:"mqtt"
+    protocol:"mqtt" 
 });
 client.on("connect",()=>{
     console.log("Connected to mqtt");
