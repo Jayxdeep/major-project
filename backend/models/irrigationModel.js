@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const irrigHistSchema= new mongoose.Schema({ //log of irrigation logic that supports manual and auto mode as per user 
     action: { type: String, 
-        enum: ["ON", "OFF"], 
+        // enum: ["ON", "OFF"], 
         required: true 
     },
   source: { type: String, 
