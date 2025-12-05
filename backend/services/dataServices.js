@@ -3,7 +3,7 @@ import SensorData from "../models/sensorModel.js";
 export const getAvgMosit=async(hours=24)=>{
     const since=new Date(Date.now()-hours*60*60*1000);
     const data=await SensorData.aggregate([
-        {$match:{timestamp:{$gte:since},$expr:{$ne:[{$toDouble:"$moisture"},null]}}},//sensor records frm 24hrs
+        {$match:{timestamp:{$gte:since}}},//sensor records frm 24hrs
         {$addFields:{moistNum:{$convert:{input:"$moisture",to:"double",onError:null,onNull:null}}}},
         {$group:{_id:null,avgMoisit:{$avg:"$moistNum"}}} //grps filtered records 
     ]);
