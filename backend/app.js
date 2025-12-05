@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 const limit = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 10,
+  max: 100,
   message: {
     status: 429,
     error: "Too many requests",

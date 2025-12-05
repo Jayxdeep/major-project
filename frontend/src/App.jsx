@@ -46,12 +46,17 @@ function App() {
     try {
       const res = await axios.get("http://localhost:3000/api/sensors");
       setData(res.data);
-      if (res.data.length > 0) {
-        const avg = res.data.reduce((sum, d) => sum + d.moisture, 0) / res.data.length;
-        setAvgMoisture(avg.toFixed(2));
-      }
     } catch (err) {
       console.error("Error fetching data:", err.message);
+    }
+  };
+
+  const fetchAvgMoisture = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/api/sensors/average");
+      setAvgMoisture(res.data.avgMosit?.toFixed(2) || null);
+    } catch (err) {
+      console.error("Error fetching avg moisture:", err.message);
     }
   };
 
@@ -107,9 +112,13 @@ function App() {
 
   useEffect(() => {
     fetchData();
+    fetchAvgMoisture();
     fetchWeather();
     fetchIrrigationStatus();
-    const interval = setInterval(fetchData, 5000);
+    const interval = setInterval(() => {
+      fetchData();
+      fetchAvgMoisture();
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
