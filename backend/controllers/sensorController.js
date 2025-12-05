@@ -1,5 +1,6 @@
 import SensorData from "../models/sensorModel.js";
-import{getAvgMosit} from "../services/dataServices.js";
+// import{getAvgMosit} from "../services/dataServices.js";
+import { cacheavgmoist,lastavgupdtime} from "../utils/mqttClient.js";
 export const getsensorData=async(_req,res)=>{//sensor readings
     try{
         const data=await SensorData.find().sort({timestamp:-1});
@@ -21,8 +22,25 @@ export const latestsensodata=async(_req,res)=>{
     }
 export const handleAvgMosit=async(_req,res)=>{
     try{
-        const avg=await getAvgMosit();
-        res.status(200).json({avgMosit:avg});
+        // const avg=await getAvgMosit();
+         let formattedTime = null;
+        if (lastavgupdtime) {
+            formattedTime = new Date(lastavgupdtime).toLocaleString("en-IN", {
+                weekday: "short",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false
+            });
+        }
+        res.status(200).json({
+            avgMosit:cacheavgmoist,
+            lastUpdated:formattedTime
+        });
+        
     }catch(err){
         res.status(500).json({error:"failed calc to avg moist",details:err.message})
     }

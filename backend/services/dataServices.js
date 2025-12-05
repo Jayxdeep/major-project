@@ -5,6 +5,7 @@ export const getAvgMosit=async(hours=24)=>{
     const data=await SensorData.aggregate([
         {$match:{timestamp:{$gte:since}}},//sensor records frm 24hrs
         {$addFields:{moistNum:{$convert:{input:"$moisture",to:"double",onError:null,onNull:null}}}},
+        {$match:{moistNum:{$ne:null}}},
         {$group:{_id:null,avgMoisit:{$avg:"$moistNum"}}} //grps filtered records 
     ]);
     console.log("aggr res",data);

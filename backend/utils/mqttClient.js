@@ -1,6 +1,7 @@
 import mqtt from "mqtt";
 import { mqttConfig } from "../config/mqttConfig.js";
 import sensorData from "../models/sensorModel.js"
+import { getAvgMosit } from "../services/dataServices.js";  
 console.log("mqtt client file loading")
 const {broker,port,sensortopic,actuatortopic}=mqttConfig;
 console.log(`Connecting to mqtt broker${broker}:${port}`); //here the broker is being connected to mqtt protocol
@@ -9,6 +10,8 @@ const client=mqtt.connect({
     port:parseInt(port,10),
     protocol:"mqtt" 
 });
+export let cacheavgmoist=null;
+export let lastavgupdtime=null;
 client.on("connect",()=>{
     console.log("Connected to mqtt");
     client.subscribe(sensortopic,(err)=>{//subscribing the sensor topics
@@ -28,6 +31,9 @@ client.on("message",async (topic,message)=>{
         });
         await newRead.save();
         console.log("sensor data saved to DB");
+        cacheavgmoist=await getAvgMosit();
+        lastavgupdtime=new Date();
+        console.log(`Updated Average Moisture:${cacheavgmoist.toFixed(2)}%`)
     }catch(err){
         console.error("Error occured",err.message);
     }   
