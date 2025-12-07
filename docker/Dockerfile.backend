@@ -3,11 +3,11 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY backend/package*.json ./
-
 RUN npm ci --only=production
 
 COPY backend/ ./
 
+# Fix permissions (non-root user)
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 && \
     chown -R nodejs:nodejs /app
