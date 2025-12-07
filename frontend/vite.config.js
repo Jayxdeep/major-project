@@ -1,8 +1,7 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-// https://vite.dev/config/
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+const isGithub = process.env.BUILD_TARGET === "github";
 export default defineConfig({
   plugins: [react()],
-  base:'/major-project/'
-})
+  base: isGithub ? "/major-project/" : "/", 
+});

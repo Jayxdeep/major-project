@@ -12,25 +12,26 @@ import {
 } from "chart.js";
 import ReactSpeedometer from "react-d3-speedometer";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Leaf, 
-  Droplets, 
-  Thermometer, 
-  Wind, 
-  LayoutDashboard, // NEW: Better Dashboard Icon
-  Activity, 
-  Power, 
-  Sprout, 
-  Moon, 
+import {
+  Leaf,
+  Droplets,
+  Thermometer,
+  Wind,
+  LayoutDashboard,
+  Activity,
+  Power,
+  Sprout,
+  Moon,
   Sun,
-  User 
+  User,
 } from "lucide-react";
+
+import { API } from "./config"; 
 import "./App.css";
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
 
 function App() {
-  // --- EXISTING STATE & LOGIC ---
   const [data, setData] = useState([]);
   const [avgMoisture, setAvgMoisture] = useState(null);
   const [weather, setWeather] = useState(null);
@@ -44,7 +45,7 @@ function App() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/sensors");
+      const res = await axios.get(`${API}/api/sensors`);
       setData(res.data);
     } catch (err) {
       console.error("Error fetching data:", err.message);
@@ -53,7 +54,7 @@ function App() {
 
   const fetchAvgMoisture = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/sensors/average");
+      const res = await axios.get(`${API}/api/sensors/average`);
       setAvgMoisture(res.data.avgMosit?.toFixed(2) || null);
     } catch (err) {
       console.error("Error fetching avg moisture:", err.message);
@@ -63,9 +64,11 @@ function App() {
   const fetchWeather = async () => {
     try {
       const city = "Bengaluru";
-      const apiKey = import.meta.env.VITE_WEATHER_API_KEY; 
+      const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
       const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
       const res = await axios.get(url);
+
       setWeather({
         temp: res.data.main.temp,
         humidity: res.data.main.humidity,
@@ -80,7 +83,7 @@ function App() {
 
   const fetchIrrigationStatus = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/irrigation/status");
+      const res = await axios.get(`${API}/api/irrigation/status`);
       setIrrigationStatus(res.data.status);
       setMode(res.data.mode);
       setController(res.data.controller);
@@ -91,7 +94,7 @@ function App() {
 
   const updateMode = async (newMode) => {
     try {
-      await axios.post("http://localhost:3000/api/irrigation/mode", { mode: newMode });
+      await axios.post(`${API}/api/irrigation/mode`, { mode: newMode });
       fetchIrrigationStatus();
     } catch (err) {
       console.error(err);
@@ -100,7 +103,7 @@ function App() {
 
   const controlPump = async (action) => {
     try {
-      await axios.post("http://localhost:3000/api/irrigation/control", {
+      await axios.post(`${API}/api/irrigation/control`, {
         action,
         triggeredBy: "user",
       });
@@ -115,6 +118,7 @@ function App() {
     fetchAvgMoisture();
     fetchWeather();
     fetchIrrigationStatus();
+
     const interval = setInterval(() => {
       fetchData();
       fetchAvgMoisture();
@@ -174,23 +178,20 @@ function App() {
   return (
     <div className={`app-wrapper ${darkMode ? "dark-theme" : "light-theme"}`}>
       
-      {/* SIDEBAR NAVIGATION */}
+      {/* Sidebar */}
       <aside className="sidebar">
         <div className="logo-container">
           <Sprout size={32} className="logo-icon" />
           <h2 className="logo-text">Agri<span className="highlight">Tech</span></h2>
         </div>
-        
+
         <nav>
-          {/* 1. PROFILE BUTTON (NOW FIRST) */}
           <button className="nav-item">
-            <User size={24} /> 
+            <User size={24} />
             <span className="nav-text">Profile</span>
           </button>
-
-          {/* 2. DASHBOARD BUTTON (NOW SECOND) */}
           <button className="nav-item active">
-            <LayoutDashboard size={24} /> 
+            <LayoutDashboard size={24} />
             <span className="nav-text">Dashboard</span>
           </button>
         </nav>
@@ -202,41 +203,30 @@ function App() {
         </div>
       </aside>
 
-      {/* MAIN CONTENT AREA */}
+      {/* Main Section */}
       <main className="main-content">
         <header className="top-header">
           <div className="header-text">
             <h1>Farm Monitoring</h1>
             <p>Live IoT Data Stream • {new Date().toLocaleDateString()}</p>
           </div>
-          
+
           <div className="control-widget glass-panel">
             <div className="status-indicator">
-              <span className={`dot ${irrigationStatus === "ON" ? "active" : ""}`}></span>
+              <span className={`dot ${irrigationStatus === "ON" ? "active" : ""}`} />
               <span>Pump: <strong>{irrigationStatus || "Offline"}</strong></span>
             </div>
-            
+
             <div className="toggle-group">
-               <button 
-                 className={`mode-btn ${mode === "auto" ? "selected" : ""}`}
-                 onClick={() => updateMode("auto")}
-               >Auto</button>
-               <button 
-                 className={`mode-btn ${mode === "manual" ? "selected" : ""}`}
-                 onClick={() => updateMode("manual")}
-               >Manual</button>
+              <button className={`mode-btn ${mode === "auto" ? "selected" : ""}`} onClick={() => updateMode("auto")}>Auto</button>
+              <button className={`mode-btn ${mode === "manual" ? "selected" : ""}`} onClick={() => updateMode("manual")}>Manual</button>
             </div>
 
             <AnimatePresence>
               {mode === "manual" && (
-                <motion.div 
-                  initial={{ opacity: 0, width: 0 }} 
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  className="manual-controls"
-                >
-                  <button className="power-btn on" onClick={() => controlPump("ON")}><Power size={14}/> ON</button>
-                  <button className="power-btn off" onClick={() => controlPump("OFF")}><Power size={14}/> OFF</button>
+                <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "auto" }} exit={{ opacity: 0, width: 0 }} className="manual-controls">
+                  <button className="power-btn on" onClick={() => controlPump("ON")}><Power size={14} /> ON</button>
+                  <button className="power-btn off" onClick={() => controlPump("OFF")}><Power size={14} /> OFF</button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -244,10 +234,8 @@ function App() {
         </header>
 
         <div className="dashboard-grid">
-          
-          {/* STATS COLUMN */}
+          {/* Stats */}
           <div className="stats-column">
-            
             <motion.div whileHover={{ y: -5 }} className="stat-card glass-panel moisture">
               <div className="card-icon green"><Leaf size={24} /></div>
               <div>
@@ -262,16 +250,12 @@ function App() {
             {weather && (
               <motion.div whileHover={{ y: -5 }} className="stat-card glass-panel weather">
                 <div className="weather-flex">
-                   <img 
-                     src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`} 
-                     alt="weather" 
-                     className="weather-img"
-                   />
-                   <div>
-                     <h3>{weather.city}</h3>
-                     <div className="big-number">{Math.round(weather.temp)}°C</div>
-                     <p className="sub-detail">{weather.condition}</p>
-                   </div>
+                  <img src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`} alt="weather" className="weather-img" />
+                  <div>
+                    <h3>{weather.city}</h3>
+                    <div className="big-number">{Math.round(weather.temp)}°C</div>
+                    <p className="sub-detail">{weather.condition}</p>
+                  </div>
                 </div>
                 <div className="weather-grid">
                   <div className="mini-stat"><Droplets size={14}/> {weather.humidity}%</div>
@@ -293,22 +277,21 @@ function App() {
                   ringWidth={20}
                   height={180}
                   width={240}
-                  textColor="transparent" 
+                  textColor="transparent"
                 />
                 <div className="gauge-value">{avgMoisture ? avgMoisture : 0}%</div>
               </div>
             </div>
           </div>
 
-          {/* ANALYTICS COLUMN */}
+          {/* Charts + Table */}
           <div className="analytics-column">
-            
             <div className="chart-card glass-panel">
               <div className="card-header">
                 <h3><Activity size={18} /> Moisture vs Temperature Trends</h3>
               </div>
               <div className="chart-wrapper">
-                 <Line data={chartData} options={chartOptions} />
+                <Line data={chartData} options={chartOptions} />
               </div>
             </div>
 
@@ -331,10 +314,10 @@ function App() {
                       <tr key={i}>
                         <td>{new Date(d.timestamp).toLocaleTimeString()}</td>
                         <td>
-                          <span className="cell-flex"><Droplets size={14} className="text-blue"/> {d.moisture}%</span>
+                          <span className="cell-flex"><Droplets size={14}/> {d.moisture}%</span>
                         </td>
                         <td>
-                          <span className="cell-flex"><Thermometer size={14} className="text-red"/> {d.temperature}°C</span>
+                          <span className="cell-flex"><Thermometer size={14}/> {d.temperature}°C</span>
                         </td>
                         <td>
                           <span className={`dot ${d.moisture < 40 ? "red" : "green"}`}></span>
@@ -344,15 +327,18 @@ function App() {
                   </tbody>
                 </table>
               </div>
-              
+
               <div className="pagination">
-                <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>←</button>
+                <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
+                  ←
+                </button>
                 <span>Page {currentPage} of {totalPages}</span>
-                <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>→</button>
+                <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+                  →
+                </button>
               </div>
             </div>
           </div>
-
         </div>
       </main>
     </div>
