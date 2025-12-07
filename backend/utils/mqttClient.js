@@ -16,7 +16,7 @@ client.on("connect",()=>{
     console.log("Connected to mqtt");
     client.subscribe(sensortopic,(err)=>{//subscribing the sensor topics
         if(!err){
-            client.publish(sensortopic,"subscribed to sensor topic")
+            console.log(`subscribed to sensor topic:${broker}:${port}`);
         }else{
             console.log("Subscription error:",err)
         }
@@ -24,7 +24,7 @@ client.on("connect",()=>{
 })
 client.on("message",async (topic,message)=>{
     //message is being sent to mqtt
-    console.log(`message from ${topic}:${message.toString()}`)
+    console.log(`MQTT => ${topic}:${message}`) //avoid multiple topics
     try{
         const newRead=new sensorData({
             moisture:message.toString()

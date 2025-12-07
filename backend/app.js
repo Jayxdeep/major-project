@@ -4,7 +4,12 @@ import rateLimit from "express-rate-limit";
 import sensorRoutes from "./routes/sensorRoutes.js";
 import irrigationRoutes from "./routes/irrigationRoutes.js";
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type"],
+  credentials: false
+}))
 app.use(express.json());
 const limit = rateLimit({
   windowMs: 1 * 60 * 1000,
