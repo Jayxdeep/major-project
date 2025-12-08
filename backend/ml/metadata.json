@@ -1,0 +1,13 @@
+{
+  "feature_names": [
+    "soil_moisture",
+    "rainfall_detected",
+    "temperature",
+    "humidity",
+    "pressure",
+    "hour",
+    "month"
+  ],
+  "model_type": "RandomForest+GradientBoosting",
+  "trained_date": "2025-12-08T15:09:21.503558"
+}
