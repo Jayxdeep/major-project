@@ -1,35 +1,58 @@
 import mongoose from "mongoose";
-const irrigHistSchema= new mongoose.Schema({ //log of irrigation logic that supports manual and auto mode as per user 
-    action: { type: String, 
-        // enum: ["ON", "OFF"], 
-        required: true 
+// History Schema - tracks irrigation logic events
+const irrigHistSchema = new mongoose.Schema(
+  {
+    action: {
+      type: String,
+      required: true,
+      enum: ["ON", "OFF", "MODE_AUTO", "MODE_MANUAL"] 
     },
-  source: { type: String, 
-    enum: ["user", "system"], //checking if user or system 
-    default: "user" 
-},
-  reason: { type: String, default: "" 
+    source: {
+      type: String,
+      enum: ["user", "system", "AUTO-ML"],  
+      default: "user"
+    },
+    reason: {
+      type: String,
+      default: ""
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
   },
-  createdAt: { 
-    type: Date, default: Date.now 
-}
-}, { _id: false });
-const irrgSchema=new mongoose.Schema({
-    status:{ //current state of valve
-        type:String,
-        enum:["ON", "OFF"],
-        default:"OFF"
-    },
-    mode:{//irrigatoin logic working
-        type:String, 
-        enum:["AUTO", "MANUAL"],
-        default:"MANUAL" //will change this later if changed to auto
-    },
-    threshold:{type:Number,default:40}, //as per the moisture lvl
-    lastCmdAt:{type:Date}, //ui ft
-    lastAppMoist:{type:Number, default:null},
-    history:{type:[irrigHistSchema],default:[]},//all log ops action
-},{timestamps:true,versionKey:false}
+  { _id: false }
 );
-const irrigation=mongoose.model("irrigation",irrgSchema);
+// Main irrigation control Schema
+const irrSchema = new mongoose.Schema(
+  {
+    status: {
+      type: String,
+      enum: ["ON", "OFF"],
+      default: "OFF"
+    },
+    mode: {
+      type: String,
+      enum: ["AUTO", "MANUAL"],
+      default: "MANUAL"
+    },
+    threshold: {
+      type: Number,
+      default: 40 // moisture % limit (editable via UI)
+    },
+    lastCmdAt: {
+      type: Date
+    },
+    lastAppMoist: {
+      type: Number,
+      default: null
+    },
+    history: {
+      type: [irrigHistSchema],
+      default: []
+    }
+  },
+  { timestamps: true, versionKey: false }
+);
+const irrigation = mongoose.model("irrigation", irrSchema);
 export default irrigation;
