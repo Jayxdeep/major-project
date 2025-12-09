@@ -19,7 +19,8 @@
     "kafkajs": "^2.2.4",
     "mongoose": "^8.18.1",
     "mqtt": "^5.14.1",
-    "node-cron": "^4.2.1"
+    "node-cron": "^4.2.1",
+    "socket.io": "^4.8.1"
   },
   "keywords": []
 }

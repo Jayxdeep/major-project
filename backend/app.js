@@ -5,6 +5,7 @@ import sensorRoutes from "./routes/sensorRoutes.js";
 import irrigationRoutes from "./routes/irrigationRoutes.js";
 import mlRoutes from "./routes/mlRoutes.js"
 import weatherRoutes from "./routes/weatherRoutes.js"
+import historyRoutes from "./routes/historyRoutes.js"
 const app = express();
 app.use(cors({
   origin: "*",
@@ -26,4 +27,5 @@ app.use("/api/irrigation", irrigationRoutes);
 app.use("/api/sensors", sensorRoutes);
 app.use('/api/weather',weatherRoutes);
 app.use("/api/ml",mlRoutes);
+app.use("/api/history",historyRoutes)
 export default app;
