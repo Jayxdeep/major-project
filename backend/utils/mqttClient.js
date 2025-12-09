@@ -29,7 +29,7 @@ client.on("message", async (topic, message) => {
   try {
     try {
       const parsed = JSON.parse(raw);
-      console.log("Parsed as JSON:", parsed);
+    //   console.log("Parsed as JSON:", parsed);
       if (typeof parsed === 'object' && parsed !== null) {
         if (parsed.moisture !== undefined) moistureVal = Number(parsed.moisture);
         if (parsed.temperature !== undefined) temperature = Number(parsed.temperature);
@@ -51,14 +51,14 @@ client.on("message", async (topic, message) => {
         const match = clean.match(/\d+(\.\d+)?/);
         if (match) {
           moistureVal = Number(match[0]);
-          console.log(`Regex extracted moisture: ${moistureVal}`);
+        //   console.log(`Regex extracted moisture: ${moistureVal}`);
         } else {
-          console.log(`No numeric value found in: "${clean}"`);
+        //   console.log(`No numeric value found in: "${clean}"`);
         }
       }
     }
     if (moistureVal === null || isNaN(moistureVal)) {
-      console.log(`Skipped → Invalid moisture reading: "${raw}"`);
+    //   console.log(`Skipped → Invalid moisture reading: "${raw}"`);
       return;
     }
     if (temperature === null || humidity === null) {
