@@ -39,10 +39,10 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [irrigationStatus, setIrrigationStatus] = useState(null);
   const [mode, setMode] = useState("auto");
-  const [controller, setController] = useState("system");
 
   const rowsPerPage = 8;
 
+  // Fetch Sensor Data
   const fetchData = async () => {
     try {
       const res = await axios.get(`${API}/api/sensors`);
@@ -52,6 +52,7 @@ function App() {
     }
   };
 
+  // Fetch Average Moisture
   const fetchAvgMoisture = async () => {
     try {
       const res = await axios.get(`${API}/api/sensors/average`);
@@ -61,6 +62,7 @@ function App() {
     }
   };
 
+  // Fetch Weather
   const fetchWeather = async () => {
     try {
       const city = "Bengaluru";
@@ -81,17 +83,18 @@ function App() {
     }
   };
 
+  // Fetch Irrigation Information
   const fetchIrrigationStatus = async () => {
     try {
       const res = await axios.get(`${API}/api/irrigation/status`);
       setIrrigationStatus(res.data.status);
       setMode(res.data.mode);
-      setController(res.data.controller);
     } catch (err) {
       console.log("Error fetching irrigation status:", err);
     }
   };
 
+  // Update Mode
   const updateMode = async (newMode) => {
     try {
       await axios.post(`${API}/api/irrigation/mode`, { mode: newMode });
@@ -101,6 +104,7 @@ function App() {
     }
   };
 
+  // Manual Pump Control
   const controlPump = async (action) => {
     try {
       await axios.post(`${API}/api/irrigation/control`, {
@@ -113,6 +117,7 @@ function App() {
     }
   };
 
+  // Auto Refresh
   useEffect(() => {
     fetchData();
     fetchAvgMoisture();
@@ -122,10 +127,12 @@ function App() {
     const interval = setInterval(() => {
       fetchData();
       fetchAvgMoisture();
-    }, 5000);
+    }, 4000);
+
     return () => clearInterval(interval);
   }, []);
 
+  // Chart Prep ( FIXED )
   const chartData = {
     labels: data.map((d) =>
       new Date(d.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -133,7 +140,7 @@ function App() {
     datasets: [
       {
         label: "Soil Moisture (%)",
-        data: data.map((d) => d.moisture),
+        data: data.map((d) => Number(d.moisture)),
         borderColor: "#4ade80",
         backgroundColor: "rgba(74, 222, 128, 0.2)",
         fill: true,
@@ -142,7 +149,7 @@ function App() {
       },
       {
         label: "Temperature (°C)",
-        data: data.map((d) => d.temperature),
+        data: data.map((d) => Number(d.temperature)),
         borderColor: "#60a5fa",
         backgroundColor: "rgba(96, 165, 250, 0.1)",
         fill: true,
@@ -170,6 +177,7 @@ function App() {
     },
   };
 
+  // Table Pagination
   const indexOfLast = currentPage * rowsPerPage;
   const indexOfFirst = indexOfLast - rowsPerPage;
   const currentRows = data.slice(indexOfFirst, indexOfLast);
@@ -203,14 +211,16 @@ function App() {
         </div>
       </aside>
 
-      {/* Main Section */}
+      {/* Main Content */}
       <main className="main-content">
+
         <header className="top-header">
           <div className="header-text">
             <h1>Farm Monitoring</h1>
             <p>Live IoT Data Stream • {new Date().toLocaleDateString()}</p>
           </div>
 
+          {/* Mode + Pump UI */}
           <div className="control-widget glass-panel">
             <div className="status-indicator">
               <span className={`dot ${irrigationStatus === "ON" ? "active" : ""}`} />
@@ -218,12 +228,12 @@ function App() {
             </div>
 
             <div className="toggle-group">
-              <button className={`mode-btn ${mode === "auto" ? "selected" : ""}`} onClick={() => updateMode("auto")}>Auto</button>
-              <button className={`mode-btn ${mode === "manual" ? "selected" : ""}`} onClick={() => updateMode("manual")}>Manual</button>
+              <button className={`mode-btn ${mode === "AUTO" ? "selected" : ""}`} onClick={() => updateMode("AUTO")}>Auto</button>
+              <button className={`mode-btn ${mode === "MANUAL" ? "selected" : ""}`} onClick={() => updateMode("MANUAL")}>Manual</button>
             </div>
 
             <AnimatePresence>
-              {mode === "manual" && (
+              {mode === "MANUAL" && (
                 <motion.div initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "auto" }} exit={{ opacity: 0, width: 0 }} className="manual-controls">
                   <button className="power-btn on" onClick={() => controlPump("ON")}><Power size={14} /> ON</button>
                   <button className="power-btn off" onClick={() => controlPump("OFF")}><Power size={14} /> OFF</button>
@@ -233,9 +243,12 @@ function App() {
           </div>
         </header>
 
+        {/* Dashboard UI */}
         <div className="dashboard-grid">
-          {/* Stats */}
+          
+          {/* Left Stats Column */}
           <div className="stats-column">
+            
             <motion.div whileHover={{ y: -5 }} className="stat-card glass-panel moisture">
               <div className="card-icon green"><Leaf size={24} /></div>
               <div>
@@ -284,8 +297,10 @@ function App() {
             </div>
           </div>
 
-          {/* Charts + Table */}
+          {/* Chart + Table Column */}
           <div className="analytics-column">
+
+            {/* Sensor Chart */}
             <div className="chart-card glass-panel">
               <div className="card-header">
                 <h3><Activity size={18} /> Moisture vs Temperature Trends</h3>
@@ -295,6 +310,7 @@ function App() {
               </div>
             </div>
 
+            {/* Recent Readings Table */}
             <div className="table-card glass-panel">
               <div className="card-header">
                 <h3>Recent Readings</h3>
@@ -309,33 +325,25 @@ function App() {
                       <th>Status</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {currentRows.map((d, i) => (
                       <tr key={i}>
                         <td>{new Date(d.timestamp).toLocaleTimeString()}</td>
-                        <td>
-                          <span className="cell-flex"><Droplets size={14}/> {d.moisture}%</span>
-                        </td>
-                        <td>
-                          <span className="cell-flex"><Thermometer size={14}/> {d.temperature}°C</span>
-                        </td>
-                        <td>
-                          <span className={`dot ${d.moisture < 40 ? "red" : "green"}`}></span>
-                        </td>
+                        <td><span className="cell-flex"><Droplets size={14} /> {d.moisture}%</span></td>
+                        <td><span className="cell-flex"><Thermometer size={14} /> {d.temperature}°C</span></td>
+                        <td><span className={`dot ${d.moisture < 40 ? "red" : "green"}`}></span></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
 
+              {/* Pagination */}
               <div className="pagination">
-                <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
-                  ←
-                </button>
+                <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>←</button>
                 <span>Page {currentPage} of {totalPages}</span>
-                <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
-                  →
-                </button>
+                <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>→</button>
               </div>
             </div>
           </div>
@@ -344,5 +352,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
