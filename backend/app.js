@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import sensorRoutes from "./routes/sensorRoutes.js";
 import irrigationRoutes from "./routes/irrigationRoutes.js";
 import mlRoutes from "./routes/mlRoutes.js"
+import weatherRoutes from "./routes/weatherRoutes.js"
 const app = express();
 app.use(cors({
   origin: "*",
@@ -23,5 +24,6 @@ const limit = rateLimit({
 app.use("/api", limit);
 app.use("/api/irrigation", irrigationRoutes);
 app.use("/api/sensors", sensorRoutes);
+app.use('/api/weather',weatherRoutes);
 app.use("/api/ml",mlRoutes);
 export default app;
