@@ -1,0 +1,64 @@
+.profile-container {
+  padding: 24px;
+  border-radius: 18px;
+  margin: 20px;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.profile-title {
+  font-size: 22px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.profile-field label {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.profile-field input {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 4px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  font-size: 15px;
+}
+
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+  padding: 8px 10px;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.save-btn {
+  margin-top: 20px;
+  padding: 12px 20px;
+  background: #4ade80;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s ease;
+}
+
+.save-btn:hover {
+  background: #22c55e;
+}
