@@ -13,7 +13,7 @@ async function callMLService(payload) {
     const { data } = await axios.post("http://localhost:5000/predict", payload);
     return data?.result;
   } catch (err) {
-    console.log("⚠ ML Service not reachable. Proceeding without ML logic.");
+    console.log(" ML Service not reachable. Proceeding without ML logic.");
     return null;
   }
 }
