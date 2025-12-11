@@ -1,5 +1,5 @@
 import express from "express";
-import { getWeatherData } from "../utils/weatherApi.js";
+import { getWeatherData } from "../utils/weatherAPI.js";
 const router=express.Router();
 router.get("/",async(_req,res)=>{
     const data=await getWeatherData();
