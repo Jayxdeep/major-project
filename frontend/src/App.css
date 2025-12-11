@@ -444,3 +444,25 @@ td { padding: 16px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0
   .header-text { text-align: center; width: 100%; margin-bottom: 20px;}
   .top-header { flex-direction: column; }
 }
+.moisture-alert-banner {
+  position: fixed;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #ff6b6b, #d92027);
+  padding: 14px 22px;
+  border-radius: 12px;
+  color: white;
+  z-index: 9999;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.dark-theme .moisture-alert-banner {
+  background: linear-gradient(135deg, #ff4b4b, #b01010);
+}
+
+.alert-content {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}

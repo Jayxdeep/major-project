@@ -37,6 +37,7 @@ import { API } from "./config";
 import "./App.css";
 
 // SOCKET CONNECTION
+const SOCKET_URL = import.meta.VITE_SOCKET_URL;
 const socket = io(API, {
   transports: ["websocket", "polling"],
   reconnection: true,
@@ -53,6 +54,9 @@ function App() {
   const [irrigationStatus, setIrrigationStatus] = useState("OFF");
   const [mode, setMode] = useState("MANUAL");
   const [mlHistory, setMlHistory] = useState([]);
+
+  // ⭐ NEW: Moisture alert state
+  const [moistureAlert, setMoistureAlert] = useState(null);
 
   const rowsPerPage = 8;
 
@@ -156,42 +160,37 @@ function App() {
     fetchIrrigationStatus();
     fetchHistory();
 
-const onSensor = (payload) => {
-  // sanitize moisture
-  let m = Number(payload.moisture);
-  if (isNaN(m) || m < 0 || m > 100) m = null; // toss corrupted values
+    const onSensor = (payload) => {
+      console.log("RAW SENSOR:", payload);
 
-  // sanitize temperature
-  let t = Number(payload.temperature);
-  if (isNaN(t) || t < -20 || t > 80) t = null;
+      let m = Number(payload.moisture);
+      if (isNaN(m) || m < 0 || m > 100) m = null;
 
-  // sanitize humidity
-  let h = Number(payload.humidity);
-  if (isNaN(h) || h < 0 || h > 100) h = null;
+      let t = Number(payload.temperature);
+      if (isNaN(t) || t < -20 || t > 80) t = null;
 
-  // avg moisture must only compute from valid values
-  let avgM = typeof payload.avgMoisture === "number"
-    ? Number(payload.avgMoisture)
-    : null;
+      let h = Number(payload.humidity);
+      if (isNaN(h) || h < 0 || h > 100) h = null;
 
-  const normalized = {
-    moisture: m,
-    temperature: t,
-    humidity: h,
-    avgMoisture: avgM,
-    timestamp: Date.now(),
-  };
+      let avgM =
+        typeof payload.avgMoisture === "number"
+          ? Number(payload.avgMoisture)
+          : null;
 
-  console.log("SANITIZED SENSOR:", normalized);
+      const normalized = {
+        moisture: m,
+        temperature: t,
+        humidity: h,
+        avgMoisture: avgM,
+        timestamp: payload.timestamp || Date.now(),
+      };
 
-  // keep only last 50 readings
-  setData((prev) => [...prev.slice(-49), normalized]);
+      console.log("SANITIZED SENSOR:", normalized);
 
-  if (avgM !== null) {
-    setAvgMoisture(Number(avgM.toFixed(2)));
-  }
-};
+      setData((prev) => [...prev.slice(-49), normalized]);
 
+      if (avgM !== null) setAvgMoisture(Number(avgM.toFixed(2)));
+    };
 
     const onPump = (payload) => {
       const createdAt = Date.now();
@@ -208,12 +207,27 @@ const onSensor = (payload) => {
       ]);
     };
 
+    // ⭐ NEW: moisture alert listener
+    const onMoistureAlert = (payload) => {
+      console.log("⚠️ Moisture Alert Received:", payload);
+
+      setMoistureAlert({
+        moisture: payload.moisture,
+        message: payload.message,
+        timestamp: payload.timestamp,
+      });
+
+      setTimeout(() => setMoistureAlert(null), 6000);
+    };
+
     socket.on("sensor_update", onSensor);
     socket.on("pump_update", onPump);
+    socket.on("moisture_alert", onMoistureAlert);
 
     return () => {
       socket.off("sensor_update", onSensor);
       socket.off("pump_update", onPump);
+      socket.off("moisture_alert", onMoistureAlert);
     };
   }, []);
 
@@ -246,11 +260,33 @@ const onSensor = (payload) => {
 
   const chartOptions = { responsive: true, maintainAspectRatio: false };
 
-  const indexOfLast = rowsPerPage;
   const currentRows = data.slice(-rowsPerPage);
 
   return (
     <div className={`app-wrapper ${darkMode ? "dark-theme" : "light-theme"}`}>
+
+      {/* ⭐ NEW: Moisture Alert Banner */}
+      <AnimatePresence>
+        {moistureAlert && (
+          <motion.div
+            className="moisture-alert-banner"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="alert-content">
+              <Droplets size={20} />
+              <div>
+                <strong>High Soil Moisture Alert</strong>
+                <p>{moistureAlert.message}</p>
+                <small>Moisture: {moistureAlert.moisture}%</small>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="logo-container">
@@ -287,10 +323,8 @@ const onSensor = (payload) => {
 
       {/* MAIN CONTENT SWITCH */}
       <main className="main-content">
-        {/* ----------- PROFILE PAGE ----------- */}
         {currentPage === "profile" && <Profile />}
 
-        {/* ----------- DASHBOARD PAGE ----------- */}
         {currentPage === "dashboard" && (
           <>
             <header className="top-header">
@@ -340,6 +374,7 @@ const onSensor = (payload) => {
 
             {/* GRID */}
             <div className="dashboard-grid">
+
               {/* LEFT SIDE */}
               <div className="stats-column">
                 <motion.div className="stat-card glass-panel moisture">
@@ -352,7 +387,9 @@ const onSensor = (payload) => {
                       {avgMoisture !== null ? `${avgMoisture}%` : "--"}
                     </div>
                     <div
-                      className={`status-badge ${Number(avgMoisture) < 40 ? "warning" : "good"}`}
+                      className={`status-badge ${
+                        Number(avgMoisture) < 40 ? "warning" : "good"
+                      }`}
                     >
                       {Number(avgMoisture) < 40 ? "Needs Water" : "Optimal"}
                     </div>
@@ -372,6 +409,7 @@ const onSensor = (payload) => {
                         <p className="sub-detail">{weather.condition}</p>
                       </div>
                     </div>
+
                     <div className="weather-grid">
                       <div className="mini-stat">
                         <Droplets size={14} /> {weather.humidity}%
@@ -392,6 +430,7 @@ const onSensor = (payload) => {
 
               {/* RIGHT SIDE */}
               <div className="analytics-column">
+
                 {/* CHART */}
                 <div className="chart-card glass-panel">
                   <div className="card-header">
@@ -404,7 +443,7 @@ const onSensor = (payload) => {
                   </div>
                 </div>
 
-                {/* AI IRRIGATION DECISION TABLE */}
+                {/* AI IRRIGATION DECISIONS */}
                 <AnimatePresence>
                   {mode === "AUTO" && (
                     <motion.div
