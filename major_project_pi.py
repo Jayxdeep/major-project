@@ -5,8 +5,6 @@ import random
 import requests
 from dotenv import load_dotenv
 import os
-
-# Load .env
 load_dotenv()
 
 BROKER = "localhost"
@@ -68,8 +66,6 @@ def get_soil_moisture():
     # Read both sensors
     raw1 = GPIO.input(SOIL1_PIN)
     raw2 = GPIO.input(SOIL2_PIN)
-
-    # Debug:
     print(f"Raw soil1: {raw1} | Raw soil2: {raw2}")
     if raw1 == 1 and raw2 == 1:
         soil_dry_count += 1
@@ -77,17 +73,19 @@ def get_soil_moisture():
         soil_dry_count = 0
 
     if soil_dry_count >= soil_missing_threshold:
-        print("BOTH soil sensors not inserted or dry → skipping")
+        print("BOTH soil sensors not inserted or too dry → skipping")
         return None, raw1, raw2
-    if raw1 == 0 or raw2 == 0:
-        target = 80      # WET
+    if raw1 == 0 and raw2 == 0:
+        target = 90            
+    elif raw1 == 0 or raw2 == 0:
+        target = 70            
     else:
-        target = 20      # DRY
-
-    # smoothing
-    smooth_moisture = int(smooth_moisture + (target - smooth_moisture) * 0.4)
+        target = 20            
+    smoothing_factor = 0.6
+    smooth_moisture = int(smooth_moisture + (target - smooth_moisture) * smoothing_factor)
 
     return smooth_moisture, raw1, raw2
+
 def get_rain_hardware_status():
     try:
         raw = GPIO.input(RAIN_PIN)
@@ -101,8 +99,6 @@ print("\n Running LIVE SENSOR STREAM... (CTRL+C to stop)\n")
 try:
     while True:
         temperature, humidity = get_weather()
-
-        # Soil moisture
         if USE_HARDWARE_SOIL:
             moisture, soil1_raw, soil2_raw = get_soil_moisture()
 
@@ -112,14 +108,10 @@ try:
         else:
             soil1_raw = soil2_raw = None
             moisture = random.randint(30, 70)
-
-        # Rain
         if USE_HARDWARE_RAIN:
             rain = get_rain_hardware_status()
         else:
             rain = get_rain_api_status()
-
-        # Final payload
         payload = {
             "moisture": moisture,
             "soil1": soil1_raw,
